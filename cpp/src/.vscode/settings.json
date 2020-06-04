@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "ostream": "cpp",
+        "core": "cpp"
+    }
+}

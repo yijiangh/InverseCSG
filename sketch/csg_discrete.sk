@@ -1,0 +1,210 @@
+include "math.skh";
+#define DEPTH 4
+
+adt CuboidHint {
+	float theta_x;
+	float theta_y;
+	float theta_z;
+	int xlen;
+	int ylen;
+	int zlen;
+	float[xlen] xlist;
+	float[ylen] ylist;
+	float[zlen] zlist;
+}
+
+adt CylinderHint {
+	float theta_x;
+	float theta_y;
+	float theta_z;
+	float radius;
+	float y;
+	float z;
+	int xlen;
+	float[xlen] xlist;
+}
+
+adt Vector {
+  float x;
+  float y;
+  float z;
+}
+
+bit renderSphere(Vector p, float x, float y, float z, float r) {
+  print("translate(["); printfloat(x); print(", "); printfloat(y); print(", "); printfloat(z); print("])\n");
+  print("sphere(r = "); printfloat(abs(r)); print(", $fn = 12);\n");
+	return (p.x - x)*(p.x - x) + (p.y - y)*(p.y - y) + (p.z - z)*(p.z - z) - r*r <= 0.0;
+}
+
+// First rotate along z axis with -thetaz, then along y-axis with -thetay, finally along x-axis with -thetax
+Vector inverse_rotate(Vector p, float theta_x, float theta_y, float theta_z) {
+	float x0 = p.x; float y0 = p.y; float z0 = p.z;
+	
+	float x1 = cos(-theta_z)*x0 - sin(-theta_z)*y0;
+	float y1 = sin(-theta_z)*x0 + cos(-theta_z)*y0;
+	float z1 = z0;
+	
+	float x2 = cos(-theta_y)*x1 + sin(-theta_y)*z1;
+	float y2 = y1;
+	float z2 = -sin(-theta_y)*x1 + cos(-theta_y)*z1;
+	
+	float x3 = x2;
+	float y3 = cos(-theta_x)*y2 -sin(-theta_x)*z2;
+	float z3 = sin(-theta_x)*y2 + cos(-theta_x)*z2;
+
+	return new Vector(x = x3, y = y3, z = z3);
+	
+}
+
+float radian_to_degree(float radian) {
+  return radian / Pi() * 180.0;
+}
+
+
+generator float getOffset([int n], float[n] offsets) {
+	int idx;
+	if (!??) {
+		idx = ??;
+		assert(idx < n -2);
+	} else {
+		idx = {| n - 2 | n - 1|};
+	}
+	return offsets[idx];
+}
+
+generator bit getCuboid(Vector p, int id) {
+	CuboidHint c = cuboidHints[id];
+	assert(c != null);
+	Vector p_rotated = inverse_rotate(p, c.theta_x, c.theta_y, c.theta_z);
+	
+	float xl = getOffset(c.xlist);
+	float yl = getOffset(c.ylist);
+	float zl = getOffset(c.zlist);
+	
+	float xu = getOffset(c.xlist);
+	float yu = getOffset(c.ylist);
+	float zu = getOffset(c.zlist);
+	
+	assert(xl < xu);
+	assert(yl < yu);
+	assert(zl < zu);
+  float roll = radian_to_degree(c.theta_x);
+  float pitch = radian_to_degree(c.theta_y);
+  float yaw = radian_to_degree(c.theta_z);
+  print("rotate(["); printfloat(roll); print(", "); printfloat(pitch); print(", "); printfloat(yaw); print("])\n");
+  float center_x = (xu + xl) * 0.5;
+  float center_y = (yu + yl) * 0.5;
+  float center_z = (zu + zl) * 0.5;
+  print("translate(["); printfloat(center_x); print(", "); printfloat(center_y); print(", "); printfloat(center_z); print("])\n");
+  print("cube(size = ["); printfloat(xu - xl); print(", "); printfloat(yu - yl); print(", "); printfloat(zu - zl); print("], center = true);\n");
+	
+	bit x_in_range = p_rotated.x >= xl && p_rotated.x <= xu;
+    bit y_in_range = p_rotated.y >= yl && p_rotated.y <= yu;
+    bit z_in_range = p_rotated.z >= zl && p_rotated.z <= zu;
+    return x_in_range && y_in_range && z_in_range;
+}
+
+generator bit getCylinder(Vector p, int id) {
+	CylinderHint c = cylinderHints[id];
+	assert(c != null);
+	
+	Vector p_rotated = inverse_rotate(p, c.theta_x, c.theta_y, c.theta_z);
+	float xl = getOffset(c.xlist);
+	float xu = getOffset(c.xlist);
+	assert(xl < xu);
+  
+  float roll = radian_to_degree(c.theta_x);
+  float pitch = radian_to_degree(c.theta_y);
+  float yaw = radian_to_degree(c.theta_z);
+  print("rotate(["); printfloat(roll); print(", "); printfloat(pitch); print(", "); printfloat(yaw); print("])\n");
+  float center_x = (xl + xu) * 0.5;
+  print("translate(["); printfloat(center_x); print(", "); printfloat(c.y); print(", "); printfloat(c.z); print("])\n");
+  print("rotate([0, 90, 0])\n");
+  print("cylinder(h = "); printfloat(xu - xl); print(", r1 = "); printfloat(c.radius); print(", r2 = "); printfloat(c.radius); print(", center = true, $fn = 12);\n");
+
+	bit withinRadius = (p_rotated.y - c.y) * (p_rotated.y - c.y) + (p_rotated.z - c.z) * (p_rotated.z - c.z) - c.radius*c.radius <= 0.0;
+	bit withinHeight = p_rotated.x >= xl && p_rotated.x <= xu;
+	return withinRadius && withinHeight;
+}
+
+
+//TODO: Add rankings: put unions before intersections, etc.
+generator bit sample_expression(Vector p, int d){ 
+	if (d <= 1 || !??) {
+		if (!??) {
+			return getSphere(p);
+		}
+		
+		int i = 0;
+		repeat(numCylinderHints) {
+			if (!??) {
+				return getCylinder(p, i);
+			}
+			i += 1;
+		}
+		i = 0;
+		repeat(numCuboidHints) {
+			if (!??) {
+				return getCuboid(p, i);
+			}
+			i += 1;
+		}
+		assert(false); 
+	} else {
+		bit b1 = !??; 
+		bit b2 = !??;
+		if (b1) {
+			print("union() {\n");
+		} else if (b2) {
+			print("intersection() {\n");
+		} else {
+			print("difference() {\n");
+		}
+		bit expression1 = false;
+		bit expression2 = false;
+		expression1 = sample_expression(p, d - 1);
+		print("\n");
+		expression2 = sample_expression(p, d - 1);
+		print("}\n");
+	  if (b1) {
+		  return expression1 || expression2;
+	  } else if (b2) { 
+		  return expression1 && expression2;
+	  } else {
+		  return expression1 && !expression2;
+	  }
+	} 
+}
+
+bit contains(Vector p) {
+	bit b = false;
+	int numChildren = 2;
+  print("// Begin.\n");
+	print("union() {\n");
+	repeat(numChildren - 1) {
+		bit b1 = sample_expression(p, DEPTH);
+		print("\n");
+		b = b || b1;
+	}
+	bit b2 = sample_expression(p, DEPTH);
+	print("}\n");
+	b = b || b2;
+	print("// End.\n");
+	return b;
+}
+
+void check(int i) {
+		Vector v = new Vector(x = xs[i], y = ys[i], z = zs[i]);
+		if (labels[i]) {
+			assert contains(v);
+		} else {
+			assert !contains(v);
+		}
+	
+}
+
+@Native("{ std::cout << message; }")
+void print([int n], char[n] message){}
+
+@Native("{ std::cout << n; }")
+void printfloat(float n){}

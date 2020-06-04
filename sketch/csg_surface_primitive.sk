@@ -1,0 +1,129 @@
+pragma options "--fe-fpencoding TO_BACKEND --bnd-unroll-amnt 32";
+
+include "math.skh";
+#define DEPTH 4
+
+adt Vector {
+  float x;
+  float y;
+  float z;
+}
+
+bit renderSphere(Vector p, float x, float y, float z, float r) {
+  print("translate(["); printfloat(x); print(", "); printfloat(y); print(", "); printfloat(z); print("])\n");
+  print("sphere(r = "); printfloat(abs(r)); print(", $fn = 12);\n");
+	return (p.x - x)*(p.x - x) + (p.y - y)*(p.y - y) + (p.z - z)*(p.z - z) - r*r <= 0.0;
+}
+
+float radian_to_degree(float radian) {
+  return radian / Pi() * 180.0;
+}
+
+bit renderCylinder(Vector p, float cx, float cy, float cz, float dx, float dy, float dz, float r, float roll, float pitch, float yaw) {
+  // The axis of the cylinder is a line at (cx, cy, cz) with direction (dx, dy, dz).
+  // r is the radius.
+  roll = radian_to_degree(roll);
+  pitch = radian_to_degree(pitch);
+  yaw = radian_to_degree(yaw);
+  print("translate(["); printfloat(cx); print(", "); printfloat(cy); print(", "); printfloat(cz); print("])\n");
+  print("rotate(["); printfloat(roll); print(", "); printfloat(pitch); print(", "); printfloat(yaw); print("])\n");
+  print("cylinder(h = 100.0, r1 = "); printfloat(r); print(", r2 = "); printfloat(r); print(", center = true, $fn = 12);\n");
+  // Determine p is inside the tube.
+  // <c + t * d - p, d> = 0.
+  // <c - p, d> + t = 0.
+  // t = <p - c, d>.
+  float t = (p.x - cx) * dx + (p.y - cy) * dy + (p.z - cz) * dz;
+  // |c + t * d - p|
+  float dist_x = cx + t * dx - p.x;
+  float dist_y = cy + t * dy - p.y;
+  float dist_z = cz + t * dz - p.z;
+  return dist_x * dist_x + dist_y * dist_y + dist_z * dist_z - r * r <= 0.0;
+}
+
+bit renderPlane(Vector p, float a, float b, float c, float d, float roll, float pitch, float yaw) {
+  // a * x + b * y + c * z + d = 0.
+  float cx = -a * d;
+  float cy = -b * d;
+  float cz = -c * d;
+  roll = radian_to_degree(roll);
+  pitch = radian_to_degree(pitch);
+  yaw = radian_to_degree(yaw);
+  print("translate(["); printfloat(cx); print(", "); printfloat(cy); print(", "); printfloat(cz); print("])\n");
+  print("rotate(["); printfloat(roll); print(", "); printfloat(pitch); print(", "); printfloat(yaw); print("])\n");
+  print("translate([0, 0, 50.0])\n");
+  print("cube(size = [100.0, 100.0, 100.0], center = true);\n");
+  return p.x * a + p.y * b + p.z * c + d >= 0.0;
+}
+
+//TODO: Add rankings: put unions before intersections, etc.
+generator bit sample_expression(Vector p, int d){ 
+	if (d <= 1 || !??) {
+		if (!??) {
+			return getSphere(p);
+		}
+    if (!??) {
+      return getPlane(p);
+    }
+    if (!??) {
+      return getCylinder(p);
+    }
+		assert(false); 
+	} else {
+		bit b1 = !??; 
+		bit b2 = !??;
+		if (b1) {
+			print("union() {\n");
+		} else if (b2) {
+			print("intersection() {\n");
+		} else {
+			print("difference() {\n");
+		}
+		bit expression1 = false;
+		bit expression2 = false;
+		expression1 = sample_expression(p, d - 1);
+		print("\n");
+		expression2 = sample_expression(p, d - 1);
+		print("}\n");
+	  if (b1) {
+		  return expression1 || expression2;
+	  } else if (b2) { 
+		  return expression1 && expression2;
+	  } else {
+		  return expression1 && !expression2;
+	  }
+	} 
+}
+
+bit contains(Vector p) {
+	bit b = false;
+	int numChildren = 3;
+  print("// Begin.\n");
+	print("union() {\n");
+	repeat(numChildren - 1) {
+		bit b1 = sample_expression(p, DEPTH);
+		print("\n");
+		b = b || b1;
+	}
+	bit b2 = sample_expression(p, DEPTH);
+	print("}\n");
+	b = b || b2;
+	print("// End.\n");
+	return b;
+}
+
+void checkAll() {
+	for (int i = 0; i < NUM_DATA; i++){
+		Vector v = new Vector(x = xs[i], y = ys[i], z = zs[i]);
+		if (labels[i]) {
+			assert contains(v);
+		} else {
+			assert !contains(v);
+		}
+	}
+}
+
+@Native("{ std::cout << message; }")
+void print([int n], char[n] message){}
+
+@Native("{ std::cout << n; }")
+void printfloat(float n){}
