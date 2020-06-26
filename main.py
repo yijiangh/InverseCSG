@@ -4,7 +4,6 @@ import sys
 
 import helper
 import sketch_pipeline
-import genetic_algorithm_pipeline
 
 # Parse input arguments.
 parser = argparse.ArgumentParser()
@@ -45,6 +44,7 @@ if __name__ == '__main__':
     sketch_pipeline.SetupSketchPipeline(args)
     sketch_pipeline.RunSketchPipeline()
   elif args.method == 'genetic':
+    import genetic_algorithm_pipeline
     genetic_algorithm_pipeline.SetupGeneticAlgorithmPipeline(args)
     genetic_algorithm_pipeline.RunGeneticAlgorithmPipeline()
   else:
