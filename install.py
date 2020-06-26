@@ -209,6 +209,7 @@ def main():
           'mercurial zsh cmake')
     
       # Install python dependencies.
+      helper.Run('python3 -m pip install --upgrade pip')
       helper.Run('python3 -m pip install numpy scipy matplotlib ipython '
                  'jupyter pandas sympy nose')
       helper.Run('python3 -m pip install -U scikit-learn')
