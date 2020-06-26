@@ -8,6 +8,7 @@ import sys
 import bisect
 import random
 import time
+import subprocess
 
 ################################################################################
 # Command lines.
@@ -23,17 +24,28 @@ def DefaultExceptionHandle(command, exit_code):
   PrintWithRedColor('Exit code: %d' % exit_code)
   sys.exit(exit_code)
 
-def Run(command, exception_handle=DefaultExceptionHandle):
+def Run(command, exception_handle=DefaultExceptionHandle, return_msg=False):
   print('Running the following command:')
   PrintWithGreenColor(command)
   time_start = time.time()
-  ret_val = os.system(command)
+
+  if not return_msg:
+    ret_val = os.system(command)
+  else:
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+    ret_val = p.wait()
+    text = p.stdout.read().decode("utf-8").split('\n')[0]
+
   time_intvl = time.time() - time_start
   print('Command finished in %f seconds.' % time_intvl)
   exit_code = ret_val >> 8
+
   if exit_code != 0 and exception_handle is not None:
     exception_handle(command, exit_code)
-  return exit_code
+  if not return_msg:
+    return exit_code
+  else:
+    return text, exit_code
 
 ################################################################################
 # Triangle meshes.

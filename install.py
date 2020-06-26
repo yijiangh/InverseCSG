@@ -135,11 +135,14 @@ def InstallJava():
 
   # Currently JAVA_HOME is hard coded.
   # java_home = '/usr/lib/jvm/java-8-oracle/' 
-  java_home = '/usr/lib/jvm/java-8-openjdk-amd64'
+  # java_home = '/usr/lib/jvm/java-8-openjdk-amd64'
+  java_path_cmd = "jrunscript -e \'java.lang.System.out.println(java.lang.System.getProperty(\"java.home\"));\'"
+  java_home, _ = helper.Run(java_path_cmd, return_msg=True)
   env_variables['JAVA_HOME'] = os.environ['JAVA_HOME'] = java_home
   path = os.path.join(java_home, 'bin') + ':' + os.environ['PATH']
   env_variables['PATH'] = os.environ['PATH'] = path
-  helper.Run('%s -version' % os.path.join(java_home, 'bin', 'javac'))
+  # helper.Run('%s -version' % os.path.join(java_home, 'bin', 'javac'))
+  helper.Run('%s -version' % os.path.join(java_home, 'bin', 'java'))
 
 def InstallMaven():
   # maven_url = 'http://mirrors.koehn.com/apache/maven/maven-3/3.5.3/' \
