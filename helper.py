@@ -1,4 +1,7 @@
-import numpy as np
+try:
+  import numpy as np
+except:
+  print('numpy not installed yet.')
 import os
 import struct
 import sys
