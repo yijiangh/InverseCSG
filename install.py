@@ -135,7 +135,7 @@ def InstallJava():
 
   # Currently JAVA_HOME is hard coded.
   # java_home = '/usr/lib/jvm/java-8-oracle/' 
-  java_home = '/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java'
+  java_home = '/usr/lib/jvm/java-8-openjdk-amd64'
   env_variables['JAVA_HOME'] = os.environ['JAVA_HOME'] = java_home
   path = os.path.join(java_home, 'bin') + ':' + os.environ['PATH']
   env_variables['PATH'] = os.environ['PATH'] = path
