@@ -1,4 +1,7 @@
 # Inverse CSG
+<!-- https://github.com/<OWNER>/<REPOSITORY>/workflows/<WORKFLOW_FILE_PATH>/badge.svg -->
+![](https://github.com/rp-research-team/InverseCSG/workflows/.github/workflows/c-cpp.yml/badge.svg)
+<img src='benchmark.jpg' width=100%>
 
 This folder provides a snapshot of the code with the paper when it was submitted to Siggraph Asia 2018. Please refer to [this link](https://github.com/mit-gfx/InverseCSG) to check out the latest version of the code repository.
 
