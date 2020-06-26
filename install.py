@@ -128,11 +128,14 @@ def InstallEigen(root_folder, init=True):
 
 def InstallJava():
   # java not hosted anymore: http://www.webupd8.org/2014/03/how-to-install-oracle-java-8-in-debian.html
-  helper.Run('sudo add-apt-repository -y ppa:webupd8team/java')
-  helper.Run('sudo apt-get update')
-  helper.Run('sudo apt-get install oracle-java8-installer')
+  # helper.Run('sudo add-apt-repository -y ppa:webupd8team/java')
+  # helper.Run('sudo apt-get update')
+  # helper.Run('sudo apt-get install oracle-java8-installer')
+  helper.Run('sudo apt-get install openjdk-8-jre')
+
   # Currently JAVA_HOME is hard coded.
-  java_home = '/usr/lib/jvm/java-8-oracle/' 
+  # java_home = '/usr/lib/jvm/java-8-oracle/' 
+  java_home = '/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java'
   env_variables['JAVA_HOME'] = os.environ['JAVA_HOME'] = java_home
   path = os.path.join(java_home, 'bin') + ':' + os.environ['PATH']
   env_variables['PATH'] = os.environ['PATH'] = path
