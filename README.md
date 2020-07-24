@@ -1,7 +1,5 @@
 # InverseCSG: automatic conversion of 3D models to CSG trees
-<!-- https://github.com/<OWNER>/<REPOSITORY>/workflows/<WORKFLOW_FILE_PATH>/badge.svg -->
-<!-- ![](https://github.com/yijiangh/InverseCSG/workflows/.github/workflows/c-cpp.yml/badge.svg) -->
-![](https://github.com/rp-research-team/InverseCSG/workflows/C++_CI/badge.svg)
+![c++_CI](https://github.com/yijiangh/InverseCSG/workflows/C++_CI/badge.svg)
 
 <img src='benchmark.jpg' width=100%>
 
