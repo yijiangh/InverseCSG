@@ -1,14 +1,19 @@
-# Inverse CSG
+# InverseCSG: automatic conversion of 3D models to CSG trees
 <!-- https://github.com/<OWNER>/<REPOSITORY>/workflows/<WORKFLOW_FILE_PATH>/badge.svg -->
-<!-- ![](https://github.com/rp-research-team/InverseCSG/workflows/.github/workflows/c-cpp.yml/badge.svg) -->
+<!-- ![](https://github.com/yijiangh/InverseCSG/workflows/.github/workflows/c-cpp.yml/badge.svg) -->
 ![](https://github.com/rp-research-team/InverseCSG/workflows/C++_CI/badge.svg)
 
 <img src='benchmark.jpg' width=100%>
 
-This folder provides a snapshot of the code with the paper when it was submitted to Siggraph Asia 2018. Please refer to [this link](https://github.com/mit-gfx/InverseCSG) to check out the latest version of the code repository.
+This folder provides a snapshot of the code with the paper ["InverseCSG: automatic conversion of 3D models to CSG trees"](###Citation) when it was submitted to Siggraph Asia 2018. 
+<!-- Please refer to [this link](https://github.com/mit-gfx/InverseCSG) to check out the latest version of the code repository. -->
+
+The current repository is modified from the original code snapshot recovered from the [supplementary material](https://dl.acm.org/doi/abs/10.1145/3272127.3275006#sec-supp) hosted on the ACM digital library. Any changes in this repo are those of the authors of this forked repo and do not necessarily reflect the views of the original authors.
+
 
 ### Platform
 * `Linux` (tested on `Ubuntu 14.04` and `Ubuntu 16.04`)
+* [`Windows Linux Subsystem`](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (tested on `Ubuntu 16.04 LTS`)
 
 ### Dependencies
 
@@ -70,3 +75,17 @@ The solutions to all of our examples are in the `solution` folder. Each subfolde
 
 When you use OpenSCAD to open and render these solutions, you will notice there are a lot of degenerated planes. These planes come from a CSG intersection or difference operation that applies to two solids with same dimensions. To illustrate this point, consider subtracting a cylinder from the center of a cube that happens to have the same height, then the top and bottom circles of the cylinder can be either considered inside or outside the solution and the behavior is therefore undefined. As a result, these artifacts do not mean our solutions have an volumetric error.
 
+### Citation
+
+If you find this work useful, please cite:
+
+    @article{du2018inversecsg,
+      title={Inversecsg: Automatic conversion of 3d models to csg trees},
+      author={Du, Tao and Inala, Jeevana Priya and Pu, Yewen and Spielberg, Andrew and Schulz, Adriana and Rus, Daniela and Solar-Lezama, Armando and Matusik, Wojciech},
+      journal={ACM Transactions on Graphics (TOG)},
+      volume={37},
+      number={6},
+      pages={1--16},
+      year={2018},
+      publisher={ACM New York, NY, USA}
+    }
