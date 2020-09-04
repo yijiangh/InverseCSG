@@ -1,5 +1,5 @@
 # InverseCSG: automatic conversion of 3D models to CSG trees
-![c++_CI](https://github.com/yijiangh/InverseCSG/workflows/C++_CI/badge.svg)
+![CI](https://github.com/yijiangh/InverseCSG/workflows/CI/badge.svg)
 
 <img src='benchmark.jpg' width=100%>
 
@@ -63,7 +63,8 @@ You can also choose to do a manual installation if `install.py` fails to finish 
   make
   ```
 
-* Follow the **Install from source** section in [this link](https://bitbucket.org/gatoatigrado/sketch-frontend/wiki/Installation) to install `Sketch`.
+* Follow the instructions in [sketch-backend](https://github.com/asolarlez/sketch-backend) and [sketch-frontend](https://github.com/asolarlez/sketch-frontend) to install `Sketch`.
+More info can be found at Prof. Armando Solar-Lezama's [webpage](https://people.csail.mit.edu/asolar/).
 
 </details>
 

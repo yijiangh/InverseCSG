@@ -44,9 +44,10 @@ if __name__ == '__main__':
     sketch_pipeline.SetupSketchPipeline(args)
     sketch_pipeline.RunSketchPipeline()
   elif args.method == 'genetic':
-    import genetic_algorithm_pipeline
-    genetic_algorithm_pipeline.SetupGeneticAlgorithmPipeline(args)
-    genetic_algorithm_pipeline.RunGeneticAlgorithmPipeline()
+    # import genetic_algorithm_pipeline
+    # genetic_algorithm_pipeline.SetupGeneticAlgorithmPipeline(args)
+    # genetic_algorithm_pipeline.RunGeneticAlgorithmPipeline()
+    raise NotImplementedError('genetic_algorithm_pipeline not implemented!')
   else:
-    helper.PrintWithRedColor('Invalid method: %s' % method)
+    helper.PrintWithRedColor('Invalid method: %s' % args.method)
     sys.exit(-1)

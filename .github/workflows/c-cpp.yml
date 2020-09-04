@@ -1,4 +1,4 @@
-name: C++_CI
+name: CI
 
 on:
   push:
@@ -20,4 +20,4 @@ jobs:
     - name: install
       run: python3 install.py -d ./build
     - name: test
-      run: python3 run_tests.py ./build one_cube
+      run: python3 run_tests.py ./build ex_011

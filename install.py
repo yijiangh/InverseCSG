@@ -82,18 +82,30 @@ def CheckSketch(build_folder):
   if os.path.exists(sketch_backend_folder):
     env_variables['CSG_SKETCH_BACKEND'] = sketch_backend_folder
 
+  err_cnt = 0
   while 'CSG_SKETCH_FRONTEND' not in env_variables:
     sketch_frontend_folder = input('Tell us the location of sketch-frontend: ') 
     if not os.path.exists(sketch_frontend_folder):
       print('Folder does not exist. Please try again.')
+      err_cnt += 1
       continue
     env_variables['CSG_SKETCH_FRONTEND'] = sketch_frontend_folder
+    if err_cnt > 5:
+      print('CSG_SKETCH_FRONTEND not found in environment variables. Re-download.')
+      return False
+
+  err_cnt = 0
   while 'CSG_SKETCH_BACKEND' not in env_variables:
     sketch_backend_folder = input('Tell us the location of sketch-backend: ') 
     if not os.path.exists(sketch_backend_folder):
       print('Folder does not exist. Please try again.')
+      err_cnt += 1
       continue
     env_variables['CSG_SKETCH_BACKEND'] = sketch_backend_folder
+    if err_cnt > 5:
+      print('CSG_SKETCH_BACKEND not found in environment variables. Re-download.')
+      return False
+
   return True
 
 def InstallCGAL(build_folder, init=True):
@@ -213,7 +225,7 @@ def main():
         helper.Run('sudo apt-get update')
         helper.Run('sudo apt-get install gcc-6 g++-6 -y')
         helper.Run('sudo apt-get install autoconf libtool flex bison '
-          'mercurial zsh cmake')
+          'mercurial zsh cmake git')
     
       # Install python dependencies.
       # TODO check if python version >= 3.7
@@ -230,10 +242,10 @@ def main():
     InstallEigen(root_folder, args.cgal)
     
     # Compile cpp.
+    cpp_build_folder = os.path.join(build_folder, 'cpp')
+    if not os.path.exists(cpp_build_folder):
+      os.makedirs(cpp_build_folder)
     if args.cpp:
-      cpp_build_folder = os.path.join(build_folder, 'cpp')
-      if not os.path.exists(cpp_build_folder):
-        os.makedirs(cpp_build_folder)
       os.chdir(cpp_build_folder)
       os.environ['CC'] = '/usr/bin/gcc-6'
       os.environ['CXX'] = '/usr/bin/g++-6'
@@ -241,8 +253,8 @@ def main():
                                              os.path.join(root_folder, 'cpp')))
       helper.Run('make')
       helper.PrintWithGreenColor('C++ program compiled successfully.')
-      env_variables['CSG_CPP_EXE'] = os.path.join(cpp_build_folder,
-                                                  'csg_cpp_command')
+    env_variables['CSG_CPP_EXE'] = os.path.join(cpp_build_folder,
+                                                'csg_cpp_command')
     
     # Install Sketch.
     # Try calling Sketch. If it is successful, we are done.
@@ -260,21 +272,26 @@ def main():
     # Next, install maven.
     InstallMaven()
     
-    # Download sketch-backend.
+    # * Download sketch-backend.
     sketch_folder = os.path.join(build_folder, 'sketch')
     if not os.path.exists(sketch_folder):
       os.makedirs(sketch_folder)
     if args.sketch:
       # Sketch-backend.
       os.chdir(sketch_folder)
-      helper.Run('hg clone https://bitbucket.org/gatoatigrado/sketch-backend')
-      helper.Run('mv sketch-backend sketch-backend-default')
+      # ! the bitbucket repos are deleted at the time of Sep/3/2020
+      # helper.Run('hg clone https://bitbucket.org/gatoatigrado/sketch-backend')
+      # helper.Run('mv sketch-backend sketch-backend-default')
+      # helper.Run('mv sketch-backend sketch-backend-default')
       # Use this version of sketch.
-      helper.Run('hg clone -r 04b3403 sketch-backend-default sketch-backend')
+      # helper.Run('hg clone -r 04b3403 sketch-backend-default sketch-backend')
+      # https://people.csail.mit.edu/asolar/
+      helper.Run('git clone https://github.com/asolarlez/sketch-backend.git')
 
     sketch_backend_folder = os.path.join(sketch_folder, 'sketch-backend')
     env_variables['CSG_SKETCH_BACKEND'] = sketch_backend_folder
 
+    # * build sketch backend
     if args.sketch:
       os.chdir(sketch_backend_folder)
       helper.Run('bash autogen.sh')
@@ -291,10 +308,11 @@ def main():
     # Download sketch-frontend.
     os.chdir(sketch_folder)
     if args.sketch:
-      helper.Run('hg clone https://bitbucket.org/gatoatigrado/sketch-frontend')
-      helper.Run('mv sketch-frontend sketch-frontend-default')
-      # Use this version of sketch.
-      helper.Run('hg clone -r 42c057c sketch-frontend-default sketch-frontend')
+      # helper.Run('hg clone https://bitbucket.org/gatoatigrado/sketch-frontend')
+      # helper.Run('mv sketch-frontend sketch-frontend-default')
+      # # Use this version of sketch.
+      # helper.Run('hg clone -r 42c057c sketch-frontend-default sketch-frontend')
+      helper.Run('git clone https://github.com/asolarlez/sketch-frontend.git')
     sketch_frontend_folder = os.path.join(sketch_folder, 'sketch-frontend')
     env_variables['CSG_SKETCH_FRONTEND'] = sketch_frontend_folder
     os.chdir(sketch_frontend_folder)
